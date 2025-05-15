@@ -1,13 +1,19 @@
 ﻿using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
+
 
 namespace TwitchIntegration.Demo
 {
     public class Menu : MonoBehaviour
     {
+        public static Menu Instance;
+
         [SerializeField] private TMP_InputField _usernameField, _channelNameField;
         [SerializeField] private TextMeshProUGUI _statusText;
         [SerializeField] private Canvas _mainUI;
+        [SerializeField] private Button _startGameButton;
 
         [SerializeField] 
         private string _authSuccess = "Successfully authenticated Twitch account!";
@@ -15,6 +21,11 @@ namespace TwitchIntegration.Demo
         private string _authRequired = "By pressing the button below, you will be redirected to a page " +
                                        "where you must authorize your Twitch account with Sub-Optimal. " +
                                        "This is required to enable Twitch chat interactions with the game.";
+        private void Awake()
+        {
+            if(Instance == null) { Instance = this; }
+            else { Destroy(this.gameObject); }
+        }
 
         public void OnAuthenticateButtonClicked()
         {
@@ -42,10 +53,18 @@ namespace TwitchIntegration.Demo
 
         private void DeactivateAuthWindow()
         {
+            _startGameButton.gameObject.SetActive(true);
+
             if (_mainUI == null) return;
 
             //Deactivate this window.
-            _mainUI.gameObject.SetActive(false);
+            //_mainUI.gameObject.SetActive(false);
+            
+        }
+
+        public void LoadPlayScene()
+        {
+            SceneManager.LoadScene(1);
         }
     }
 }

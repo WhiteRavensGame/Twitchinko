@@ -251,11 +251,12 @@ namespace TwitchIntegrationEditor
                 text = "Settings".ToBold(),
                 style = {fontSize = 24}
             });
-            
+
             var clientIdField = new TextField
             {
                 label = "Game Twitch Client ID",
                 value = _settings.clientId,
+                //value = "uellbdanvrsbwcjugxo3rxqfk40tnx",
                 labelElement = {style = {color = string.IsNullOrEmpty(_settings.clientId) ? Color.yellow : Color.white}}
             };
             clientIdField.RegisterCallback(new EventCallback<ChangeEvent<string>>(_ =>

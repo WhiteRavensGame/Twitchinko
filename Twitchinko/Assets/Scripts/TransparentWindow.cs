@@ -38,9 +38,9 @@ public class TransparentWindow : MonoBehaviour
 
     void Start()
     {
-        Debug.Log("FUCK");
+        //Debug.Log("FUCK");
         bool isTwitchAuthenticated = TwitchManager.IsAuthenticated;
-        Debug.Log("Shit");
+        //Debug.Log("Shit");
 
         //MessageBox(new IntPtr(0), "Hello World", "Hello Dialog!", 0);
 

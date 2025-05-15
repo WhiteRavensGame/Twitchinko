@@ -8,12 +8,16 @@ public class Pillpet : MonoBehaviour
     [SerializeField] private Sprite normalSprite;
     [SerializeField] private Sprite deathSprite;
 
+    [SerializeField] private GameManager gameManager;
+
     private int bloat;
     private float hungerTimer = 60;
     private float timeBeforeHungerTick = 60;
     private bool isAlive = true;
     private bool isMoving = false;
     private Vector3 destination = Vector3.zero;
+
+    public float timeAlive = 0;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -23,6 +27,7 @@ public class Pillpet : MonoBehaviour
         isAlive = true;
         isMoving = false;
         destination = Vector3.zero;
+        timeAlive = 0;
     }
 
     // Update is called once per frame
@@ -30,6 +35,11 @@ public class Pillpet : MonoBehaviour
     {
         if (!isAlive)
             return;
+
+        timeAlive += Time.deltaTime;
+        gameManager.UpdateTimeUI(timeAlive);
+        
+
 
         //Update hunger meter
         hungerTimer -= Time.deltaTime;
@@ -51,6 +61,7 @@ public class Pillpet : MonoBehaviour
         {
             // if too fat or too starved, die.
             Die();
+            gameManager.RecordTime(timeAlive);
         }
 
         if(isMoving)
@@ -73,13 +84,18 @@ public class Pillpet : MonoBehaviour
 
     public void Revive()
     {
+        gameManager.RecordTime(timeAlive);
         Start();
     }
 
     public void Move(float x, float y)
     {
         isMoving = true;
-        destination = new Vector3(Mathf.Clamp(x, -8, 8), y, 0);
+        destination = transform.position + new Vector3(x, 0, 0);
+        destination = new Vector3(Mathf.Clamp(destination.x, -8, 8), destination.y, destination.z);
+
+        if (x > 0) pillpetAppearance.flipX = false;
+        else pillpetAppearance.flipX = true;
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
