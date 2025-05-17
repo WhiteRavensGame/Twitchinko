@@ -1,4 +1,6 @@
-﻿using TMPro;
+﻿using System;
+using System.IO;
+using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -21,10 +23,23 @@ namespace TwitchIntegration.Demo
         private string _authRequired = "By pressing the button below, you will be redirected to a page " +
                                        "where you must authorize your Twitch account with Sub-Optimal. " +
                                        "This is required to enable Twitch chat interactions with the game.";
+        float PingCounter = 0;
+
         private void Awake()
         {
             if(Instance == null) { Instance = this; }
             else { Destroy(this.gameObject); }
+        }
+
+        private void Update()
+        {
+            PingCounter += Time.deltaTime;
+            if (PingCounter > 60)
+            {
+                Console.WriteLine("Flush Streamwriter");
+                //Call TwitchCommandManager to flush stream writer and refresh.
+                
+            }
         }
 
         public void OnAuthenticateButtonClicked()

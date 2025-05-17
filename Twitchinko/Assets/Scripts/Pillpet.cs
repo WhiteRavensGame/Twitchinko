@@ -12,7 +12,7 @@ public class Pillpet : MonoBehaviour
 
     private int bloat;
     private float hungerTimer = 60;
-    private float timeBeforeHungerTick = 60;
+    private float timeBeforeHungerTick = 999999999;
     private bool isAlive = true;
     private bool isMoving = false;
     private Vector3 destination = Vector3.zero;
@@ -22,12 +22,7 @@ public class Pillpet : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        hungerTimer = timeBeforeHungerTick;
-        bloat = 2;
-        isAlive = true;
-        isMoving = false;
-        destination = Vector3.zero;
-        timeAlive = 0;
+        ResetStats();
     }
 
     // Update is called once per frame
@@ -82,10 +77,20 @@ public class Pillpet : MonoBehaviour
         isAlive = false;
     }
 
+    public void ResetStats()
+    {
+        hungerTimer = timeBeforeHungerTick;
+        bloat = 2;
+        isAlive = true;
+        isMoving = false;
+        destination = Vector3.zero;
+        timeAlive = 0;
+    }
+
     public void Revive()
     {
         gameManager.RecordTime(timeAlive);
-        Start();
+        ResetStats();
     }
 
     public void Move(float x, float y)

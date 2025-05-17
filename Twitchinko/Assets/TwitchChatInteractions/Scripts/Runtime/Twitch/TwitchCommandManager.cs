@@ -42,6 +42,9 @@ namespace TwitchIntegration
         
         private const float Timeout = 10f;
 
+        //QQQQ
+        float PingCounter = 0;
+
         internal static void AddBehaviour(TwitchMonoBehaviour behaviour)
         {
             if (!IsInitialized) return;
@@ -298,8 +301,19 @@ namespace TwitchIntegration
 
         private void Update()
         {
-            if (!IsInitialized) return;
+            //QQQQ
+            PingCounter += Time.deltaTime;
             
+            if (PingCounter > 60)
+            {
+                Debug.Log("refreshing connection to Twitch");
+                _streamWriter.WriteLine("PING" + _twitchClient);
+                _streamWriter.Flush();
+                PingCounter = 0;
+            }
+
+            if (!IsInitialized) return;
+
             if (!IsConnected)
                 Connect();
 
