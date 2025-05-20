@@ -36,5 +36,6 @@ namespace TwitchIntegration.Demo
             _chatText.text += "Connected to the chat!\n";
         }
 
+
     }
 }

@@ -1,3 +1,4 @@
+using TMPro;
 using UnityEngine;
 
 public class Pillpet : MonoBehaviour
@@ -8,21 +9,34 @@ public class Pillpet : MonoBehaviour
     [SerializeField] private Sprite normalSprite;
     [SerializeField] private Sprite deathSprite;
 
+    [SerializeField] private TextMeshProUGUI textName;
+    public string pillpetName;
+
     [SerializeField] private GameManager gameManager;
 
     private int bloat;
     private float hungerTimer = 60;
-    private float timeBeforeHungerTick = 999999999;
+    private float timeBeforeHungerTick = 60;
     private bool isAlive = true;
     private bool isMoving = false;
     private Vector3 destination = Vector3.zero;
 
     public float timeAlive = 0;
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         ResetStats();
+        if (gameManager == null)
+            gameManager = GameObject.FindGameObjectWithTag("GameController").GetComponent<GameManager>();
+    }
+
+    public void SetName(string newName)
+    {
+        pillpetName = newName;
+        if(pillpetName.Length > 14) 
+            textName.text = pillpetName.Substring(0, 14);
+        else
+            textName.text = pillpetName;
     }
 
     // Update is called once per frame
@@ -45,18 +59,22 @@ public class Pillpet : MonoBehaviour
         }
 
         //determine sprite to render
-        if (bloat > 0 && bloat < 5)
+        if (bloat > 0 && bloat < 6)
         {
             if (bloat >= 4)
                 pillpetAppearance.sprite = bloatedSprite;
             else
                 pillpetAppearance.sprite = normalSprite;
         }
-        else
+        else if(bloat >= 6)
         {
-            // if too fat or too starved, die.
+            // if too fat, die.
             Die();
             gameManager.RecordTime(timeAlive);
+        }
+        else //if starved, be immortal?
+        {
+
         }
 
         if(isMoving)

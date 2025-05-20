@@ -7,6 +7,7 @@ public class GameManager : TwitchMonoBehaviour
 {
     [SerializeField] private GameObject _testObject;
     [SerializeField] private GameObject _foodObject;
+    [SerializeField] private GameObject _debugChatBoxObject;
 
     [SerializeField] private TextMeshProUGUI _bestTimeText;
     [SerializeField] private TextMeshProUGUI _currentTimeText;
@@ -22,8 +23,16 @@ public class GameManager : TwitchMonoBehaviour
 
     private void Start()
     {
+        TwitchManager.OnTwitchCommandReceived += OnTwitchCommandReceived;
+
         bestTime = PlayerPrefs.GetFloat("best_time", 0);
+
         UpdateBestTimeUI();
+    }
+
+    private void OnTwitchCommandReceived(TwitchUser user, TwitchCommand command)
+    {
+        Debug.Log("QQQQ " + user.displayname + " " + command.name);
     }
 
     [TwitchCommand("move_object", "move", "m")]
@@ -46,6 +55,20 @@ public class GameManager : TwitchMonoBehaviour
     {
         Pillpet p = _testObject.GetComponent<Pillpet>();
         p.Revive();
+    }
+
+    [TwitchCommand("costco_on", "costco_on")]
+    public void CostcoHotdogOn()
+    {
+        GameObject g = GameObject.FindGameObjectWithTag("Food");
+        g.GetComponent<Food>().ChangeSpriteHotdog();
+    }
+
+    [TwitchCommand("costco_off", "costco_off")]
+    public void CostcoHotdogOff()
+    {
+        GameObject g = GameObject.FindGameObjectWithTag("Food");
+        g.GetComponent<Food>().ChangeSpriteCookie();
     }
 
     public void RecordTime(float timeAlive)
@@ -84,4 +107,20 @@ public class GameManager : TwitchMonoBehaviour
     {
         //_testObject.transform.position = Vector3.Lerp(_testObject.transform.position, _targetPosition, Time.deltaTime * 3);
     }
+
+
+    //QQQQ
+    [TwitchCommand("debug_on", "debug_on")]
+    public void DebugModeOn()
+    {
+        _debugChatBoxObject.gameObject.SetActive(true);
+    }
+
+    [TwitchCommand("debug_off", "debug_off")]
+    public void DebugModeOff()
+    {
+        _debugChatBoxObject.gameObject.SetActive(false);
+    }
+
+
 }

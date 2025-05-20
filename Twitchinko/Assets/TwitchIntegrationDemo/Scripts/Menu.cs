@@ -29,6 +29,11 @@ namespace TwitchIntegration.Demo
         {
             if(Instance == null) { Instance = this; }
             else { Destroy(this.gameObject); }
+
+#if UNITY_EDITOR
+            _usernameField.text = "OhMyLemongrass";
+            _channelNameField.text = "OhMyLemongrass";
+#endif
         }
 
         private void Update()
