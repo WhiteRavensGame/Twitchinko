@@ -15,9 +15,9 @@ public class BoardManager : MonoBehaviour
     private float spacingX = 1f;
     private float spacingY = 1f;
 
-    private float slotStartX = -3.5f;
+    private float slotStartX = -3.25f;
     private float slotEndX = 3.5f;
-    private float slotSpacingX = 1f;
+    private float slotSpacingX = 0.925f;
     private float slotY = -5;
 
     private int[,] grid;
@@ -25,6 +25,8 @@ public class BoardManager : MonoBehaviour
     public GameObject[] pieces;
     public GameObject[] slots; 
     private List<GameObject> spawnedObjects;
+
+    public GameObject gameView;
 
 
     void Start()
@@ -45,10 +47,17 @@ public class BoardManager : MonoBehaviour
     {
         if(Input.GetKeyDown(KeyCode.R))
         {
+            gameView.SetActive(true);
+
             //QQQQ
             GameObject.FindGameObjectWithTag("Player").GetComponent<PillpetBall>().ResetBall(Random.Range(-3.5f, 3.5f), 4.5f);
 
             RegenerateBoard();
+            
+        }
+        else if(Input.GetKeyDown(KeyCode.E))
+        {
+            gameView.SetActive(false);
         }
     }
 
@@ -78,7 +87,7 @@ public class BoardManager : MonoBehaviour
 
                 if (pieces[rand] == null) continue;
 
-                GameObject g = Instantiate(pieces[rand], new Vector3(xPos, yPos, 0), Quaternion.Euler(0, 0, 90));
+                GameObject g = Instantiate(pieces[rand], new Vector3(xPos, yPos, 0), Quaternion.Euler(0, 0, 90), gameView.transform);
                 spawnedObjects.Add(g);
             }
         }
@@ -102,7 +111,7 @@ public class BoardManager : MonoBehaviour
             float yPos = slotY;
 
 
-            GameObject g = Instantiate(slots[rand], new Vector3(xPos, yPos, 0), Quaternion.identity);
+            GameObject g = Instantiate(slots[rand], new Vector3(xPos, yPos, 0), Quaternion.identity, gameView.transform);
             spawnedObjects.Add(g);
         }
 

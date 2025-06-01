@@ -1,4 +1,3 @@
-using UnityEditor.Rendering;
 using UnityEngine;
 
 public class PillpetBall : MonoBehaviour
@@ -43,7 +42,7 @@ public class PillpetBall : MonoBehaviour
     public void ProcessDeath()
     {
         DisplayLoseSprite();
-        rb.bodyType = RigidbodyType2D.Static;
+        rb.bodyType = RigidbodyType2D.Kinematic;
     }
 
     public void ResetBall(float newX, float newY)

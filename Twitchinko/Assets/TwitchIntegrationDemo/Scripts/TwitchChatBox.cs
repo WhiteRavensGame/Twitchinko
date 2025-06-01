@@ -25,6 +25,8 @@ namespace TwitchIntegration.Demo
         
         private void OnTwitchCommandReceived(TwitchUser user, TwitchCommand command)
         {
+            Debug.Log("Twitch command received from " + user.displayname + "command: " + command.name);
+
             var playerName = user.displayname;
             if (!string.IsNullOrEmpty(user.color))
                 playerName = "<color=" + user.color + ">" + playerName + "</color>";
