@@ -222,7 +222,7 @@ namespace TwitchIntegration
             }
             
             TwitchManager.OnCommandReceived(twitchUser, commandInfo);
-            CallCommand(baseCommand, args);
+            CallCommand(twitchUser, baseCommand, args);
         }
 
         private static void OnJoinedToChat()
@@ -236,28 +236,62 @@ namespace TwitchIntegration
             _isConnecting = false;
         }
         
-        private void CallCommand(string commandName, IReadOnlyList<string> args)
+        private void CallCommand(TwitchUser twitchUser, string commandName, IReadOnlyList<string> args)
         {
             var method = _methodsDict[commandName];
             var parameters = _methodParameters[method];
 
             var filteredArgs = new object[parameters.Length];
+            int index = 0;
+
+            if(filteredArgs.Length > 0)
+            {
+                filteredArgs[0] = twitchUser;
+                index++;
+            }
+                
+
+            //for (var i = 0; i < parameters.Length; i++)
+            //{
+            //    var param = parameters[i];
+            //    if(param.ParameterType == typeof(TwitchUser))
+            //    {
+            //        filteredArgs[i] = twitchUser;
+            //    }
+            //    else if (i < args.Count)
+            //    {
+            //        filteredArgs[i] = Convert.ChangeType(args[i], param.ParameterType);
+            //    }
+            //    else
+            //    {
+            //        filteredArgs[i] = param.HasDefaultValue ? param.DefaultValue : null;
+            //    }
+
+            //}
+
             for (var i = 0; i < args.Count; i++)
             {
+                //safety: break out when players try to flood command with too much argument values. 
+                if (index == filteredArgs.Length) break;
+
                 object value;
-                if (parameters[i].ParameterType == typeof(int))
+                if (parameters[index].ParameterType == typeof(int))
                     value = int.Parse(args[i]);
-                else if (parameters[i].ParameterType == typeof(float))
+                else if (parameters[index].ParameterType == typeof(float))
                     value = float.Parse(args[i]);
-                else if (parameters[i].ParameterType == typeof(bool))
+                else if (parameters[index].ParameterType == typeof(bool))
                     value = bool.Parse(args[i]);
-                else if (parameters[i].ParameterType == typeof(string))
-                    value = args[i];
+                else if (parameters[index].ParameterType == typeof(string))
+                    value = args[index];
                 else throw new TwitchCommandException(
                     "Twitch command arguments can only be int, float, bool, or string");
-                filteredArgs[i] = value;
+                //filteredArgs[i] = value;
+
+                //version to allow including chatter name.
+                filteredArgs[index] = value;
+                index++;
             }
-            
+
             Debug.Log("Calling command " + commandName);
 
             if (!_methodBehaviours.ContainsKey(method)) return;

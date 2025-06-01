@@ -33,21 +33,26 @@ public class GameManager : TwitchMonoBehaviour
     private void OnTwitchCommandReceived(TwitchUser user, TwitchCommand command)
     {
         Debug.Log("QQQQ " + user.displayname + " " + command.name);
+        
     }
 
     [TwitchCommand("move_object", "move", "m")]
-    public void MovePillpet(float x, float y)
+    public void MovePillpet(TwitchUser user, float x, float y)
     {
+        Debug.Log($"{user.displayname} moved pillpet!!!! by {x},{y}");
+
         Pillpet p = _testObject.GetComponent<Pillpet>();
         p.Move(x, -4.5f);
     }
 
     [TwitchCommand("drop_food", "food")]
-    public void DropFood()
+    public void DropFood(TwitchUser user)
     {
         float spawnPoint = UnityEngine.Random.Range(-8f, 8f);
         _foodObject.transform.position = new Vector3(spawnPoint, 0, 0);
         _foodObject.SetActive(true);
+
+        Debug.Log(user.displayname + " dropped food!!!!");
     }
 
     [TwitchCommand("revive", "revive")]
