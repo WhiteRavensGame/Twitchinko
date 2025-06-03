@@ -33,8 +33,8 @@ public class TransparentWindow : MonoBehaviour
 
     const int GWL_EXSTYLE = -20;
 
-    const uint WS_EX_LAYERED = 0x00080000;
-    const uint WS_EX_TRANSPARENT = 0x00000020;
+    const int WS_EX_LAYERED = 0x00080000;
+    const int WS_EX_TRANSPARENT = 0x00000020;
 
     static readonly IntPtr HWND_TOPMOST = new IntPtr(-1);
 
@@ -55,33 +55,33 @@ public class TransparentWindow : MonoBehaviour
 
     void Start()
     {
-        
 
-//        //Debug.Log("FUCK");
-//        bool isTwitchAuthenticated = TwitchManager.IsAuthenticated;
-//        //Debug.Log("Shit");
 
-//        //MessageBox(new IntPtr(0), "Hello World", "Hello Dialog!", 0);
+        //        //Debug.Log("FUCK");
+        //        bool isTwitchAuthenticated = TwitchManager.IsAuthenticated;
+        //        //Debug.Log("Shit");
 
-//        //Makes the app transparent and click through in the build (if made to run in the editor, it will break the whole Unity Editor)
-//#if !UNITY_EDITOR
+        //        //MessageBox(new IntPtr(0), "Hello World", "Hello Dialog!", 0);
 
-//        //Allow player to change settings when not yet authenticated to Twitch.
-//        //if(isTwitchAuthenticated)
-//        {
-//            IntPtr hWnd = GetActiveWindow();
+        //        //Makes the app transparent and click through in the build (if made to run in the editor, it will break the whole Unity Editor)
+#if !UNITY_EDITOR
 
-//            //Allows transparency using the negative margin value.
-//            MARGINS margins = new MARGINS { cxLeftWidth = -1 };
-//            DwmExtendFrameIntoClientArea(hWnd, ref margins);
+        //Allow player to change settings when not yet authenticated to Twitch.
+        //if(isTwitchAuthenticated)
+        {
+            IntPtr hWnd = GetActiveWindow();
 
-//            //Allows the window to be click through and transparent
-//            SetWindowLong(hWnd, GWL_EXSTYLE, WS_EX_LAYERED | WS_EX_TRANSPARENT);
+            //Allows transparency using the negative margin value.
+            MARGINS margins = new MARGINS { cxLeftWidth = -1 };
+            DwmExtendFrameIntoClientArea(hWnd, ref margins);
 
-//            //Sets the window to be on the topmost.
-//            SetWindowPos(hWnd, HWND_TOPMOST, 0, 0, 0, 0, 0);
-//        }
-//#endif
+            //Allows the window to be click through and transparent
+            SetWindowLong(hWnd, GWL_EXSTYLE, WS_EX_LAYERED | WS_EX_TRANSPARENT);
+
+            //Sets the window to be on the topmost.
+            SetWindowPos(hWnd, HWND_TOPMOST, 0, 0, 0, 0, 0);
+        }
+#endif
 
     }
 
