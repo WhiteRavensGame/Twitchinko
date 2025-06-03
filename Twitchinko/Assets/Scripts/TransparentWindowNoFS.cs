@@ -94,14 +94,88 @@ public class TransparentWindowNoFS : MonoBehaviour
 
     }
 
+    public void TurnScreenTransparent(bool transparentModeOn)
+    {
+        Debug.Log($"Turn screen transparent {transparentModeOn}");
+
+#if !UNITY_EDITOR
+        IntPtr hWnd = GetActiveWindow();
+
+        //saves the current window style to allow reverting back to it. 
+        if (!styleSaved)
+        {
+            originalStyle = GetWindowLong(hWnd, GWL_STYLE);
+            styleSaved = true;
+        }
+
+        if (transparentModeOn && !isTransparent)
+        {
+            //Allows transparency using the negative margin value.
+            MARGINS margins = new MARGINS { cxLeftWidth = -1 };
+            DwmExtendFrameIntoClientArea(hWnd, ref margins);
+
+            //Allows the window to be click through and transparent
+            //SetWindowLong(hWnd, GWL_EXSTYLE, (int)(WS_EX_LAYERED | WS_EX_TRANSPARENT));
+            SetWindowLong(hWnd, GWL_STYLE, unchecked((int)(WS_POPUP | WS_VISIBLE)));
+
+
+            int exStyle = GetWindowLong(hWnd, GWL_EXSTYLE);
+            exStyle |= (int)(WS_EX_LAYERED | WS_EX_TRANSPARENT);
+            SetWindowLong(hWnd, GWL_EXSTYLE, exStyle);
+
+            //Sets the window to be on the topmost.
+            //SetWindowPos(hWnd, HWND_TOPMOST, 0, 0, 0, 0, 0);
+
+            isTransparent = true;
+        }
+        else if(!transparentModeOn && isTransparent)
+        {
+            if (styleSaved)
+            {
+                SetWindowLong(hWnd, GWL_STYLE, originalStyle);
+
+                // Remove WS_EX_LAYERED and WS_EX_TRANSPARENT
+                int exStyle = GetWindowLong(hWnd, GWL_EXSTYLE);
+                exStyle &= ~(int)(WS_EX_LAYERED | WS_EX_TRANSPARENT);
+                SetWindowLong(hWnd, GWL_EXSTYLE, exStyle);
+
+                //forces Windows to redraw in case it doesn't work properly. 
+                SetWindowPos(hWnd, IntPtr.Zero, 0, 0, 0, 0,
+                    SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
+
+            }
+            else
+            {
+                // Revert to normal window
+                MARGINS margins = new MARGINS { cxLeftWidth = 0, cxRightWidth = 0, cyTopHeight = 0, cyBottomHeight = 0 };
+                DwmExtendFrameIntoClientArea(hWnd, ref margins);
+
+                // Remove WS_EX_LAYERED and WS_EX_TRANSPARENT
+                int exStyle = GetWindowLong(hWnd, GWL_EXSTYLE);
+                exStyle &= ~(int)(WS_EX_LAYERED | WS_EX_TRANSPARENT);
+                SetWindowLong(hWnd, GWL_EXSTYLE, exStyle);
+
+                // Optional: remove topmost
+                //SetWindowPos(hWnd, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
+            }
+
+
+            isTransparent = false;
+
+        }
+#endif
+
+    }
+
     void Update()
     {
+#if UNITY_EDITOR
         if (Input.GetKeyDown(KeyCode.Q))
         {
             IntPtr hWnd = GetActiveWindow();
 
             //saves the current window style to allow reverting back to it. 
-            if(!styleSaved)
+            if (!styleSaved)
             {
                 originalStyle = GetWindowLong(hWnd, GWL_STYLE);
                 styleSaved = true;
@@ -129,7 +203,7 @@ public class TransparentWindowNoFS : MonoBehaviour
             }
             else
             {
-                if(styleSaved)
+                if (styleSaved)
                 {
                     SetWindowLong(hWnd, GWL_STYLE, originalStyle);
 
@@ -164,6 +238,7 @@ public class TransparentWindowNoFS : MonoBehaviour
             }
 
         }
+#endif
     }
 
 

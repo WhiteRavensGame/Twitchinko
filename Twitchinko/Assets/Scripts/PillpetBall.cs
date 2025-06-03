@@ -1,3 +1,5 @@
+using TMPro;
+using TwitchIntegration;
 using UnityEngine;
 
 public class PillpetBall : MonoBehaviour
@@ -9,7 +11,13 @@ public class PillpetBall : MonoBehaviour
     [SerializeField] private Sprite happySprite;
     [SerializeField] private Sprite deathSprite;
 
+    [SerializeField] private TextMeshProUGUI nameText;
+
+
     private Rigidbody2D rb;
+
+    private TwitchUser user;
+
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -21,6 +29,19 @@ public class PillpetBall : MonoBehaviour
     void Update()
     {
         
+    }
+
+    public void AssignPlayer(TwitchUser user)
+    {
+        this.user = user;
+        nameText.text = user.displayname;
+
+        if (user.displayname.Contains("Lemongrass"))
+            pillpetAppearance.color = Color.yellow;
+    }
+    public TwitchUser GetPlayerAssigned()
+    {
+        return this.user;
     }
 
     private void DisplayWinSprite()

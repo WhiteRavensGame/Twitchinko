@@ -3,8 +3,10 @@ using UnityEngine;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using System.Linq;
+using TwitchIntegration;
+using TMPro;
 
-public class BoardManager : MonoBehaviour
+public class BoardManager : TwitchMonoBehaviour
 {
     public static BoardManager Instance;
 
@@ -25,8 +27,25 @@ public class BoardManager : MonoBehaviour
     public GameObject[] pieces;
     public GameObject[] slots; 
     private List<GameObject> spawnedObjects;
+    private List<GameObject> spawnedPlayers;
 
     public GameObject gameView;
+    public GameObject waitingBlockerObject;
+
+    [SerializeField]
+    public GameObject pillpetPrefab;
+
+    [Header("UI")]
+    public GameObject timerHeader;
+    public TextMeshProUGUI timerText;
+    public TransparentWindowNoFS transparentWindowSettings;
+
+    private GameState gameState;
+
+    private float lobbyTime = 20;
+    private float elapsedTime = 0;
+    private float playTime = 15;
+
 
 
     void Start()
@@ -35,7 +54,12 @@ public class BoardManager : MonoBehaviour
         {
             Instance = this;
             spawnedObjects = new List<GameObject>();
-            RegenerateBoard();
+            spawnedPlayers = new List<GameObject>();
+
+            gameState = GameState.IDLE;
+            gameView.SetActive(false);
+            transparentWindowSettings.TurnScreenTransparent(true);
+            //RegenerateBoard();
         }
         else
         {
@@ -45,12 +69,38 @@ public class BoardManager : MonoBehaviour
 
     void Update()
     {
+        if (gameState == GameState.STARTING)
+        {
+            elapsedTime += Time.deltaTime;
+            timerText.text = Mathf.CeilToInt(lobbyTime - elapsedTime).ToString();
+            if(elapsedTime > lobbyTime) 
+            {
+                gameState = GameState.PLAYING;
+                elapsedTime = 0;
+                waitingBlockerObject.SetActive(false);
+                timerHeader.SetActive(false);
+            }
+        }
+        else if(gameState == GameState.PLAYING)
+        {
+            elapsedTime += Time.deltaTime;
+            if(elapsedTime > playTime)
+            {
+                gameState = GameState.IDLE;
+                elapsedTime = 0;
+                waitingBlockerObject.SetActive(true);
+                gameView.SetActive(false);
+                transparentWindowSettings.TurnScreenTransparent(true);
+            }
+        }
+
         if(Input.GetKeyDown(KeyCode.R))
         {
             gameView.SetActive(true);
 
             //QQQQ
-            GameObject.FindGameObjectWithTag("Player").GetComponent<PillpetBall>().ResetBall(Random.Range(-3.5f, 3.5f), 4.5f);
+            GameObject g = GameObject.FindGameObjectWithTag("Player");
+            if(g != null) g.GetComponent<PillpetBall>().ResetBall(Random.Range(-3.5f, 3.5f), 4.5f);
 
             RegenerateBoard();
             
@@ -69,6 +119,13 @@ public class BoardManager : MonoBehaviour
             Destroy(g);
         }
         spawnedObjects.Clear();
+
+        //Destroy all old players.
+        foreach (GameObject g in spawnedPlayers)
+        {
+            Destroy(g);
+        }
+        spawnedPlayers.Clear();
 
         //Initialize Board
         int width = Mathf.RoundToInt(Mathf.Abs(endX - startX) / spacingX) + 1;
@@ -102,7 +159,6 @@ public class BoardManager : MonoBehaviour
         {
             Debug.Log(spikeIndex[i]);
         }
-
         
         for (int i = 0; i < slotsCount; i++)
         {
@@ -115,6 +171,67 @@ public class BoardManager : MonoBehaviour
             spawnedObjects.Add(g);
         }
 
+    }
+
+    [TwitchCommand("pachinko")]
+    public void StartGame(TwitchUser user)
+    {
+        if (gameState == GameState.IDLE)
+        {
+            transparentWindowSettings.TurnScreenTransparent(false);
+            gameState = GameState.STARTING;
+            gameView.SetActive(true);
+            RegenerateBoard();
+            Debug.Log($"{user.displayname} started a game!!!!");
+
+            CreatePillpetBall(user);
+            timerHeader.SetActive(true);
+        }
+        else if(gameState == GameState.STARTING)
+        {
+            Debug.Log($"{user.displayname} joined the game!!!!");
+
+            //double check if the player already has a ball before spawning them. 
+            CreatePillpetBall(user);
+        }
+
+        
 
     }
+
+    private bool HasDuplicatePlayer(TwitchUser user)
+    {
+        foreach(GameObject g in spawnedPlayers)
+        {
+            if(g.GetComponent<PillpetBall>().GetPlayerAssigned().displayname == user.displayname)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private void CreatePillpetBall(TwitchUser user)
+    {
+        //Prevent duplicate players from spawning in.
+        if (HasDuplicatePlayer(user)) return;
+
+        float randX = Random.Range(-3.2f, 3.2f);
+        float randY = Random.Range(4.2f, 4.8f);
+        GameObject g = Instantiate(pillpetPrefab, new Vector3(randX, randY, 0), Quaternion.identity, gameView.transform);
+        spawnedPlayers.Add(g);
+        PillpetBall p = g.GetComponent<PillpetBall>();
+        p.AssignPlayer(user);
+    }
+
+
+}
+
+public enum GameState
+{
+    IDLE = 0,
+    STARTING,
+    PLAYING,
+    ENDING
 }
